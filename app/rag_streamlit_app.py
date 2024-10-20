@@ -29,7 +29,7 @@ if uploaded_file is not None:
     query = st.text_input("Enter your query")
     if st.button("Ask"):
         if query:
-            response = rag_on_files.ask(query, faiss_index, doc_ids)
+            response = rag_on_files.ask(query, faiss_index, doc_ids, partitions)
             st.write(response)
         else:
             st.warning("Please enter a query")

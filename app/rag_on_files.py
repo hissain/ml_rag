@@ -16,6 +16,9 @@ ollama_model_name = "llama3.2:latest"
 
 VERBOSE = False
 
+
+# File as URI
+
 def read_pdf(file_path):
     text = ""
     with open(file_path, 'rb') as file:
@@ -145,7 +148,7 @@ def store_in_faiss(partitions):
     
     return index, doc_ids
 
-def retrieve_with_rag(query, faiss_index, doc_ids, k=2):
+def retrieve_with_rag(query, faiss_index, doc_ids, partitions, k=2):
     query_embedding = get_embedding(query)
     distances, indices = faiss_index.search(np.array([query_embedding]), k=k)
     retrieved_docs = []
@@ -161,8 +164,8 @@ def retrieve_with_rag(query, faiss_index, doc_ids, k=2):
                              data=json.dumps(payload))
     return response.json()
 
-def ask(query, faiss_index, doc_ids):
-    rag_response = retrieve_with_rag(query, faiss_index, doc_ids)
+def ask(query, faiss_index, doc_ids, partitions):
+    rag_response = retrieve_with_rag(query, faiss_index, doc_ids, partitions)
     return rag_response["response"]
 
 
