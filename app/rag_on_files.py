@@ -48,6 +48,41 @@ def read_file(file_path):
         return read_text(file_path)
     else:
         raise ValueError("Unsupported file format")
+    
+
+# File as objects
+
+def read_pdf_obj(file_obj):
+    text = ""
+    reader = PyPDF2.PdfReader(file_obj)  # File-like object
+    for page in reader.pages:
+        text += page.extract_text()
+    return text
+
+def read_docx_obj(file_obj):
+    doc = docx.Document(file_obj)  # File-like object
+    text = "\n".join([p.text for p in doc.paragraphs])
+    return text
+
+def read_excel_obj(file_obj):
+    df = pd.read_excel(file_obj)  # File-like object
+    return df.to_string()
+
+def read_text_obj(file_obj):
+    return file_obj.read().decode('utf-8')
+
+def read_file_as_obj(file_obj):
+    file_name = file_obj.name  # Get the name of the uploaded file
+    if file_name.endswith('.pdf'):
+        return read_pdf_obj(file_obj)  # Pass file-like object
+    elif file_name.endswith('.docx'):
+        return read_docx_obj(file_obj)  # Pass file-like object
+    elif file_name.endswith('.xlsx'):
+        return read_excel_obj(file_obj)  # Pass file-like object
+    elif file_name.endswith('.txt'):
+        return read_text_obj(file_obj)  # Pass file-like object
+    else:
+        raise ValueError("Unsupported file format")    
 
 def partition_text(text, max_length):
     sentences = text.split('. ')
@@ -126,7 +161,7 @@ def retrieve_with_rag(query, faiss_index, doc_ids, k=2):
                              data=json.dumps(payload))
     return response.json()
 
-def ask(query):
+def ask(query, faiss_index, doc_ids):
     rag_response = retrieve_with_rag(query, faiss_index, doc_ids)
     return rag_response["response"]
 
@@ -135,7 +170,6 @@ def main():
     file_path = "./../data/designpattern.pdf"
     text_data = read_file(file_path)
     partitions = partition_text(text_data, max_length=512)
-
     faiss_index, doc_ids = store_in_faiss(partitions)
 
 if __name__ == '__main__':

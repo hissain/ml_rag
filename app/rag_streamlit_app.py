@@ -12,9 +12,9 @@ if uploaded_file is not None:
         file_name = uploaded_file.name
 
         if file_name.endswith('.pdf'):
-            text_data = rag_on_files.read_pdf(uploaded_file)
+            text_data = rag_on_files.read_pdf_obj(uploaded_file)
         elif file_name.endswith('.docx'):
-            text_data = rag_on_files.read_docx(uploaded_file)
+            text_data = rag_on_files.read_docx_obj(uploaded_file)
         elif file_name.endswith('.xlsx'):
             df = pd.read_excel(uploaded_file)
             text_data = df.to_string()
@@ -29,7 +29,7 @@ if uploaded_file is not None:
     query = st.text_input("Enter your query")
     if st.button("Ask"):
         if query:
-            response = rag_on_files.ask(query)
+            response = rag_on_files.ask(query, faiss_index, doc_ids)
             st.write(response)
         else:
             st.warning("Please enter a query")
